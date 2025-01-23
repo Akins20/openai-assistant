@@ -20,15 +20,26 @@ export const queryAssistant = async ({
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ query, assistantId, conversationId }),
   });
+
   if (!response.ok) {
     throw new Error("Failed to query assistant");
   }
-  return response.body.getReader();
+
+  // Extract the conversation ID from the response headers
+  const newConversationId = response.headers.get("X-Conversation-Id");
+
+  return {
+    reader: response.body.getReader(),
+    conversationId: newConversationId, // Return the new conversation ID (if any)
+  };
 };
 
 // Fetch all conversations for an assistant
 export const fetchConversations = async (assistantId) => {
-  const response = await fetch(`${API_BASE_URL}/conversations/${assistantId}`);
+  const response = await fetch(`${API_BASE_URL}/conversations/${assistantId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
   if (!response.ok) {
     throw new Error("Failed to fetch conversations");
   }

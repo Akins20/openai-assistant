@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { FaChevronUp, FaChevronDown } from "react-icons/fa"; // Import icons from react-icons
+import { FaChevronUp, FaChevronDown } from "react-icons/fa";
 
 export const MainAssistantList = ({
   assistants,
   selectedAssistantId,
   onSelectAssistant,
+  isDarkMode,
 }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
@@ -19,32 +20,62 @@ export const MainAssistantList = ({
       <button
         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
         className={`w-full px-4 py-2 text-left rounded-lg border ${
-          isDropdownOpen ? "border-blue-500" : "border-gray-300"
-        } focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center`}
+          isDropdownOpen
+            ? "border-blue-500"
+            : isDarkMode
+            ? "border-gray-600"
+            : "border-gray-300"
+        } focus:outline-none focus:ring-2 focus:ring-blue-500 flex justify-between items-center ${
+          isDarkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+        }`}
       >
         {selectedAssistant ? (
           <div>
-            <h3 className="font-bold text-gray-600">
+            <h3
+              className={`font-bold ${
+                isDarkMode ? "text-white" : "text-gray-800"
+              }`}
+            >
               {selectedAssistant.name}
             </h3>
-            <p className="text-sm text-gray-600">
+            <p
+              className={`text-sm ${
+                isDarkMode ? "text-gray-300" : "text-gray-600"
+              }`}
+            >
               {selectedAssistant.instruction}
             </p>
           </div>
         ) : (
-          "Select an Assistant"
+          <span className={isDarkMode ? "text-gray-300" : "text-gray-600"}>
+            Select an Assistant
+          </span>
         )}
         {/* Toggle Icon */}
         {isDropdownOpen ? (
-          <FaChevronDown className="h-5 w-5 text-gray-600" /> // Up arrow when dropdown is open
+          <FaChevronDown
+            className={`h-5 w-5 ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          />
         ) : (
-          <FaChevronUp className="h-5 w-5 text-gray-600" /> // Down arrow when dropdown is closed
+          <FaChevronUp
+            className={`h-5 w-5 ${
+              isDarkMode ? "text-gray-300" : "text-gray-600"
+            }`}
+          />
         )}
       </button>
 
       {/* Dropup List */}
       {isDropdownOpen && (
-        <div className="absolute z-10 w-full bottom-full mb-2 bg-white border border-gray-300 rounded-lg shadow-lg">
+        <div
+          className={`absolute z-10 w-full md:w-[300px] bottom-full mb-2 rounded-lg shadow-lg ${
+            isDarkMode
+              ? "bg-gray-800 border-gray-700"
+              : "bg-white border-gray-300"
+          }`}
+        >
           <div className="space-y-2 p-2">
             {assistants
               .filter((assistant) => assistant.id !== selectedAssistantId) // Exclude the selected assistant
@@ -55,10 +86,18 @@ export const MainAssistantList = ({
                     onSelectAssistant(assistant.id);
                     setIsDropdownOpen(false); // Close the dropup after selection
                   }}
-                  className={`p-2 rounded cursor-pointer hover:bg-gray-100`}
+                  className={`p-2 rounded cursor-pointer ${
+                    isDarkMode
+                      ? "hover:bg-gray-700 text-white"
+                      : "hover:bg-gray-100 text-gray-800"
+                  }`}
                 >
                   <h3 className="font-bold">{assistant.name}</h3>
-                  <p className="text-sm text-gray-600">
+                  <p
+                    className={`text-sm ${
+                      isDarkMode ? "text-gray-300" : "text-gray-600"
+                    }`}
+                  >
                     {assistant.instruction}
                   </p>
                 </div>

@@ -13,6 +13,8 @@ import {
   fetchConversationById,
   deleteConversationById,
 } from "@/utils/apis";
+import { FaTelegramPlane } from "react-icons/fa"; // Import Telegram icon
+import { ImSpinner8 } from "react-icons/im"; // Import spinner icon
 
 const MainPage = () => {
   const [query, setQuery] = useState("");
@@ -48,8 +50,9 @@ const MainPage = () => {
       const loadConversations = async () => {
         try {
           const data = await fetchConversations(selectedAssistantId);
-          setConversations(data.conversations);
+          setConversations(data.conversations || []);
         } catch (err) {
+          setConversations([]);
           console.error("Failed to fetch conversations:", err);
         }
       };
@@ -61,19 +64,22 @@ const MainPage = () => {
   // Handle query submission
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!query.trim() || !selectedAssistantId || !selectedConversationId)
-      return;
+    // console.log("Submitted:", query, selectedAssistantId, selectedConversationId)
+    if (!query.trim() || !selectedAssistantId) return;
 
     setIsLoading(true);
     setMessages((prev) => [...prev, { role: "user", content: query }]);
     setQuery("");
 
     try {
-      const reader = await queryAssistant({
+      const { reader, conversationId: convoId } = await queryAssistant({
         query,
         assistantId: selectedAssistantId,
         conversationId: selectedConversationId,
       });
+      if (!selectedConversationId) {
+        setSelectedConversationId(convoId);
+      }
 
       const decoder = new TextDecoder();
       let assistantMessage = "";
@@ -124,7 +130,8 @@ const MainPage = () => {
   const handleSelectConversation = async (conversationId) => {
     try {
       const data = await fetchConversationById(conversationId);
-      setMessages(data.messages); // Render the selected conversation's messages
+      // console.table("Selected messages:", data)
+      setMessages(data.conversation.messages); // Render the selected conversation's messages
       setSelectedConversationId(conversationId); // Set the selected conversation as active
     } catch (err) {
       console.error("Failed to fetch conversation:", err);
@@ -136,7 +143,7 @@ const MainPage = () => {
       className={`min-h-screen ${isDarkMode ? "bg-gray-900" : "bg-gray-50"}`}
     >
       <Header />
-      <div className="flex">
+      <div className={`flex${isDarkMode ? "bg-gray-800" : "bg-white"}`}>
         <MemoryPanel
           isOpen={isMemoryPanelOpen}
           onClose={() => setIsMemoryPanelOpen(false)}
@@ -144,6 +151,7 @@ const MainPage = () => {
           selectedConversationId={selectedConversationId}
           onSelectConversation={handleSelectConversation}
           onNewConversation={handleNewConversation}
+          isDarkMode={isDarkMode}
         />
         <ChatBox messages={messages} /> {/* Use the ChatBox component */}
       </div>
@@ -154,35 +162,40 @@ const MainPage = () => {
           isDarkMode ? "bg-gray-800" : "bg-white"
         } p-6`}
       >
-        <div className="max-w-4xl mx-auto flex gap-6">
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row gap-6">
           {/* Assistant List */}
-          <div className="w-1/4">
+          <div className="w-full md:w-1/4">
             <MainAssistantList
               assistants={assistants}
               selectedAssistantId={selectedAssistantId}
               onSelectAssistant={setSelectedAssistantId}
+              isDarkMode={isDarkMode}
             />
           </div>
 
           {/* Input Box */}
-          <div className="w-2/3">
+          <div className="w-full md:w-2/3">
             <form onSubmit={handleSubmit} className="flex gap-2">
-              <input
-                type="text"
+              <textarea
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Ask a question..."
-                className={`flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                className={`flex-1 px-2 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none ${
                   isDarkMode ? "bg-gray-700 text-white" : "bg-white"
                 }`}
                 disabled={isLoading}
+                rows={1} // Default rows, can adjust as needed
               />
               <button
                 type="submit"
-                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+                className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 flex items-center justify-center"
                 disabled={isLoading}
               >
-                {isLoading ? "Sending..." : "Send"}
+                {isLoading ? (
+                  <ImSpinner8 className="animate-spin" size={20} /> // Spinner icon with animation
+                ) : (
+                  <FaTelegramPlane size={20} /> // Telegram icon
+                )}
               </button>
             </form>
           </div>

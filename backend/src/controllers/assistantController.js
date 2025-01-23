@@ -188,6 +188,9 @@ export const createConversation = async (req, res) => {
 export const queryAssistant = async (req, res) => {
   try {
     const { query, assistantId, conversationId } = req.body;
+    // Set headers for streaming
+    res.setHeader("Content-Type", "text/plain");
+    res.setHeader("Transfer-Encoding", "chunked");
 
     // Fetch the assistant to get its configuration
     const assistant = await openai.beta.assistants.retrieve(assistantId);
@@ -198,10 +201,6 @@ export const queryAssistant = async (req, res) => {
       messages: [{ role: "user", content: query }],
       stream: true,
     });
-
-    // Set headers for streaming
-    res.setHeader("Content-Type", "text/plain");
-    res.setHeader("Transfer-Encoding", "chunked");
 
     let assistantResponse = "";
 
@@ -257,8 +256,10 @@ export const queryAssistant = async (req, res) => {
 export const getAllConversations = async (req, res) => {
   try {
     const { assistantId } = req.params;
+    // console.log("THis is assistantID: ", assistantId);
 
     const conversations = await Conversation.find({ assistantId });
+    // console.table(conversations);
 
     res.status(200).json({
       message: "Conversations fetched successfully",

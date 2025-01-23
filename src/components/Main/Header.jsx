@@ -1,4 +1,5 @@
 import { useTheme } from "./ThemeContext";
+import { FaSun, FaMoon } from "react-icons/fa"; // Import the icons
 
 export const Header = () => {
   const { isDarkMode, toggleTheme } = useTheme();
@@ -15,11 +16,13 @@ export const Header = () => {
         </h1>
         <button
           onClick={toggleTheme}
-          className={`px-4 py-2 rounded-lg ${
-            isDarkMode ? "bg-gray-700 text-white" : "bg-gray-200 text-gray-700"
+          className={`p-2 rounded-full ${
+            isDarkMode
+              ? "text-white hover:bg-gray-700"
+              : "text-gray-700 hover:bg-gray-200"
           }`}
         >
-          {isDarkMode ? "Light Mode" : "Dark Mode"}
+          {isDarkMode ? <FaSun size={24} /> : <FaMoon size={24} />}
         </button>
       </div>
     </div>

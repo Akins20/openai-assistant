@@ -33,7 +33,7 @@ router.post("/upload/:assistantId", uploadFilesToAssistant);
 router.delete("/delete/:assistantId", deleteAssistant);
 
 // Get all conversations for an assistant
-router.get("/conversations", getAllConversations)
+router.get("/conversations/:assistantId", getAllConversations)
 
 // Get conversation by Id
 router.get("/conversations/id/:conversationId", getConversationById)
