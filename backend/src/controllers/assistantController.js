@@ -256,10 +256,8 @@ export const queryAssistant = async (req, res) => {
 export const getAllConversations = async (req, res) => {
   try {
     const { assistantId } = req.params;
-    // console.log("THis is assistantID: ", assistantId);
 
     const conversations = await Conversation.find({ assistantId });
-    // console.table(conversations);
 
     res.status(200).json({
       message: "Conversations fetched successfully",
